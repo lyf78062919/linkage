@@ -1,18 +1,7 @@
 /**
  * javascript Infinite Level Linkage Select
  * javascript 无限级联动
- *
- * Version 1.8 (2014-01-08)
- * @requires jQuery v1.6.0 or newer
- *
  * @Author lhy
- *
- * @copyright
- * Copyright (C) 2013 lhy
- *
- * Dual licensed under the MIT and GPL licenses:
- *   http://www.opensource.org/licenses/mit-license.php
- *   http://www.gnu.org/licenses/gpl.html
  */
 
 
@@ -20,19 +9,60 @@ var Linkage = function(opts) {
     var $ = jQuery;
     var _this = this;
     this.elm_arr = [];
+    this.current_value;
     this.st = {
         select: '',
         data: {},
+        _data:[],
         selStyle: '',
         selClass: '',
-        maxLevel: 30
+        maxLevel: 30,
+        onchange:null
     };
 
     if (opts && typeof opts === 'object') {
         $.extend(this.st, opts);
     }
+    
+    this._parseData();
+
     this._init();
-    return;
+
+    this.api = {
+        on  :   function(name,func){
+          _this.st['on'+name] = func;
+        },
+        getData : function(key,name){
+            return _this._getData(key);
+        },
+        getRouter : function(name){
+            return _this._getRouter();
+        }
+
+
+    }
+
+    return this.api;
+}
+
+Linkage.prototype._parseData = function(d,fid) {
+    var data = (!d)?this.st.data:d,
+        fid = (!fid)?0:fid,
+        _data = this.st._data;
+        //console.info(_data);
+        for (var i in data) {
+            //console.info(data[i]);
+            var _temp = {};
+            _temp['v'] = data[i]['name'];
+            _temp['f'] = fid;
+            _data[i] = _temp;
+            if( typeof data[i]['cell'] === 'undefined' || !data[i]['cell'] ){
+                continue;
+            }else{
+                //console.info(data[i]);
+                this._parseData(data[i]['cell'],i);
+            }
+        }
 }
 
 
@@ -69,10 +99,11 @@ Linkage.prototype._onchange = function(event) {
         sel_value = jq_node.val(),
         elm_node = elm_arr[index];
         elm_node['value'] = sel_value;
-    //console.info(index)
-    // var cur_sel_index = $(this).data('sel_index');
-    // _this._onchange(cur_sel_index+1);
-    _this._change(index + 1);
+        _this.current_value = sel_value;
+        //console.info(index)
+        // var cur_sel_index = $(this).data('sel_index');
+        // _this._onchange(cur_sel_index+1);
+        _this._change(index + 1);
 }
 
 
@@ -89,6 +120,7 @@ Linkage.prototype._change = function(index) {
     }
 
     this._linkage(index);
+    this._hook('onchange');
 }
 
 
@@ -206,16 +238,80 @@ Linkage.prototype._linkage  = function(index){
         for (var i = index+1;i < len; i++) {
             var elm_node = elm_arr[i];
             elm_node['jq_node'].css('visibility', 'hidden');
-            if(typeof elm_node['value'] == 'undefined'  || !elm_node['value'] ){
-                //elm_node['jq_node'].hide();
-            }
+            elm_node['value'] = null;
         };
 }
 
 
-Linkage.prototype.remoteData   = function(){
-
-
-
+Linkage.prototype._remoteData   = function(){
 
 }
+
+Linkage.prototype._getData   = function(key,name){
+    var rsdata;
+    if(!key){ return; }
+    var _data = this.st._data;
+    if( name  &&  typeof name === 'string' && _data.hasOwnProperty(name) ){
+        rsdata = _data[name]
+    }else if( name && isArray(name)){
+        for(var i in name){
+            if( typeof name[i] === 'string' &&  _data.hasOwnProperty(name[i])){
+                rsdata[name[i]] = _data[name[i]];
+            }
+        }
+    }else if(!name){
+        rsdata =  _data;
+    }else{
+        rsdata = null;
+    }
+    return rsdata;
+}
+
+Linkage.prototype._getRouter   = function(key){
+
+    var elm_arr = this.elm_arr,
+        len = elm_arr.length,
+        name,
+        arr = [];
+        if (!len) { return null; }
+        for (var i = 0; i < len; i++) {
+            //console.info();
+            if(elm_arr[i]['value']!=null){
+                name = this._getData(elm_arr[i]['value'],name);
+                if(!name){
+                    break;
+                }else{
+                    arr.push(name);
+                }
+            }   
+        }
+    return  arr;
+}
+
+
+
+
+
+
+
+Linkage.prototype._hook   = function(hook_name){
+    var st = this.st;
+
+    if(typeof hook_name === 'undefined' || !hook_name ){
+        return;
+    }else{
+        if(st.hasOwnProperty(hook_name)  &&  typeof st[hook_name] === 'function'  ){
+            st[hook_name].call(this.api,this.current_value);
+        }else{
+            return;
+        }
+    }
+}
+
+
+
+
+
+
+var isArray = function(v){ return Object.prototype.toString.apply(v) === '[object Array]';};
+var isNumber = function(o) { return typeof o === 'number' && isFinite(o); };

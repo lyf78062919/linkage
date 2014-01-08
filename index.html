@@ -4,6 +4,7 @@
     <title>linkage</title>
     <script type="text/javascript" src="js/jquery.js" ></script>
     <script type="text/javascript" src="js/linkage.js" ></script>
+    <script src="js/district-all.js"></script>
     <script type="text/javascript">
 
         $(function(){
@@ -24,17 +25,24 @@
                     },
                     9: {name: '粮食', 
                         cell: { 
-                            30: {name: '水稻',    cell: { 301: {name: '大米', cell: {3001: {name: '五常香米', price: 50}} } }   } 
+                            30: {name: '水稻',    cell: { 301: {name: '大米', cell: {3001: {name: '五常香味有机香米', price: 50}} } }   } 
                         }
                     }
                 };
                 var opts = {
-                        data: data,
+                        data: districtData,
                         select: '#area'
                 };
 
 
-                var area_select = new Linkage(opts);
+                area_select = new Linkage(opts);
+                
+                area_select.on("change",function(key){
+                    console.info(this.getData(key,'name'));
+                    //console.info(this);
+                    //console.info(this.getRouter());
+                });
+
                 console.log(area_select);
 
         })
@@ -44,8 +52,5 @@
 <body>
 
     <select name="area" id="area" ></select>
-
-
-
 </body>
 </html>
