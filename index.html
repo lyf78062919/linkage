@@ -33,14 +33,18 @@
                         data: districtData,
                         select: '#area'
                 };
-
+                var food = {
+                        data: data,
+                        select: '#food'
+                };
 
                 area_select = new Linkage(opts);
-                
-                area_select.on("change",function(key){
+                food_select = new Linkage(food);
+
+                food_select.on("change",function(key){
                     console.info(this.getData(key,'name'));
                     //console.info(this);
-                    //console.info(this.getRouter());
+                    console.info(this.getRouter('name'));
                 });
 
                 console.log(area_select);
@@ -50,7 +54,7 @@
     </script>
 </head>
 <body>
-
+    <select name="food" id="food" ></select><br/><br/><br/><br/>
     <select name="area" id="area" ></select>
 </body>
 </html>

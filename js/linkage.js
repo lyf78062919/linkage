@@ -7,6 +7,7 @@
 
 var Linkage = function(opts) {
     var $ = jQuery;
+    xxxxxxxxxxxxxxx = this;
     var _this = this;
     this.elm_arr = [];
     this.current_value;
@@ -14,6 +15,7 @@ var Linkage = function(opts) {
         select: '',
         data: {},
         _data:[],
+        tip:{text:'选择吧',value:''},
         selStyle: '',
         selClass: '',
         maxLevel: 30,
@@ -33,10 +35,10 @@ var Linkage = function(opts) {
           _this.st['on'+name] = func;
         },
         getData : function(key,name){
-            return _this._getData(key);
+            return _this._getData(key,name);
         },
         getRouter : function(name){
-            return _this._getRouter();
+            return _this._getRouter(name);
         }
 
 
@@ -53,9 +55,10 @@ Linkage.prototype._parseData = function(d,fid) {
         for (var i in data) {
             //console.info(data[i]);
             var _temp = {};
-            _temp['v'] = data[i]['name'];
-            _temp['f'] = fid;
-            _data[i] = _temp;
+            //_temp['v'] = data[i]['name'];
+            //_temp['f'] = fid;
+            //_data[i] = _temp;
+            _data[i] = data[i];
             if( typeof data[i]['cell'] === 'undefined' || !data[i]['cell'] ){
                 continue;
             }else{
@@ -63,13 +66,14 @@ Linkage.prototype._parseData = function(d,fid) {
                 this._parseData(data[i]['cell'],i);
             }
         }
+    return;    
 }
 
 
 Linkage.prototype._init = function() {
     this._bind(this.st.select);
     this._update(0);
-
+    return;
 }
 
 
@@ -88,6 +92,7 @@ Linkage.prototype._bind = function(sel) {
     elm.data('sel_index', sel_index);
     elm_arr.push(elm_obj);
     elm.change(_this, this._onchange);
+    return;
 }
 
 
@@ -98,12 +103,17 @@ Linkage.prototype._onchange = function(event) {
         index = jq_node.data('sel_index');
         sel_value = jq_node.val(),
         elm_node = elm_arr[index];
+
+        if(sel_value === _this['st']['tip']['value']){
+            sel_value = null;
+        }
         elm_node['value'] = sel_value;
         _this.current_value = sel_value;
         //console.info(index)
         // var cur_sel_index = $(this).data('sel_index');
         // _this._onchange(cur_sel_index+1);
         _this._change(index + 1);
+    return;
 }
 
 
@@ -121,6 +131,8 @@ Linkage.prototype._change = function(index) {
 
     this._linkage(index);
     this._hook('onchange');
+    this._render(index);
+    return;
 }
 
 
@@ -133,12 +145,14 @@ Linkage.prototype._generateSel = function(index) {
     this._bind('#' + id);
     //console.info(elm_arr);
     this._fill(index);
+    return;
 }
 
 Linkage.prototype._update = function(index) {
     var elm_arr = this.elm_arr;
     this._clean(index);
     this._fill(index);
+    return;
 }
 
 
@@ -155,17 +169,18 @@ Linkage.prototype._clean = function(index) {
         };
     }*/
 
-
+    return;
 }
 
 
 Linkage.prototype._fill = function(index) {
     var elm_arr = this.elm_arr,
+        st = this.st,
         all_data = this.st.data,
         data = this._selData(index);
 
     if(data){
-        var head = '<option value="null" >请选择</option>';
+        var head = '<option value="'+st['tip']['value']+'" >'+st['tip']['text']+'</option>';
         var options = [];
         options.push(head);
         for (var i in data) {
@@ -179,20 +194,26 @@ Linkage.prototype._fill = function(index) {
         elm_arr[index]['hasdata'] = false;
     }
     
-    this._render(index);
+    return;
+    //this._render(index);
 }
 
 
 Linkage.prototype._render   = function(index){
     var elm_arr = this.elm_arr,
-        elm_node = elm_arr[index],
-        jq_node =   elm_arr[index]['jq_node'];
-    if(!elm_node['hasdata']){
-        jq_node.css('visibility', 'hidden');
-        return;
-    }else{
-        jq_node.css('visibility', 'visible');
-    }
+        len     = elm_arr.length;
+        
+        for(var i = index;i<len;i++ ){
+            elm_node = elm_arr[i];
+            jq_node =   elm_arr[i]['jq_node'];
+            if(elm_node['display'] && elm_node['hasdata']){
+                jq_node.css('visibility', 'visible');
+            }else{
+                jq_node.css('visibility', 'hidden');
+            }
+        }
+
+    return;
 }
 
 
@@ -235,11 +256,20 @@ Linkage.prototype._linkage  = function(index){
     var elm_arr = this.elm_arr,
         len     = elm_arr.length;
 
-        for (var i = index+1;i < len; i++) {
+        for (var i = index;i < len; i++) {
             var elm_node = elm_arr[i];
-            elm_node['jq_node'].css('visibility', 'hidden');
-            elm_node['value'] = null;
-        };
+            if(i == index){
+                elm_node['value'] = null; 
+                elm_node['display'] = true; 
+            }else{
+                //elm_node['jq_node'].css('visibility', 'hidden');
+               elm_node['value'] = null;
+               elm_node['display'] = false; 
+            }
+
+        }
+
+    return;
 }
 
 
@@ -250,9 +280,9 @@ Linkage.prototype._remoteData   = function(){
 Linkage.prototype._getData   = function(key,name){
     var rsdata;
     if(!key){ return; }
-    var _data = this.st._data;
+    var _data = this.st._data[key];
     if( name  &&  typeof name === 'string' && _data.hasOwnProperty(name) ){
-        rsdata = _data[name]
+        rsdata = _data[name];
     }else if( name && isArray(name)){
         for(var i in name){
             if( typeof name[i] === 'string' &&  _data.hasOwnProperty(name[i])){
@@ -267,30 +297,25 @@ Linkage.prototype._getData   = function(key,name){
     return rsdata;
 }
 
-Linkage.prototype._getRouter   = function(key){
-
+Linkage.prototype._getRouter   = function(name){
     var elm_arr = this.elm_arr,
         len = elm_arr.length,
-        name,
+        value,
         arr = [];
         if (!len) { return null; }
         for (var i = 0; i < len; i++) {
             //console.info();
             if(elm_arr[i]['value']!=null){
-                name = this._getData(elm_arr[i]['value'],name);
-                if(!name){
+                value = this._getData(elm_arr[i]['value'],name);
+                if(value === null || value === undefined ){
                     break;
                 }else{
-                    arr.push(name);
+                    arr.push(value);
                 }
             }   
         }
     return  arr;
 }
-
-
-
-
 
 
 
@@ -306,6 +331,7 @@ Linkage.prototype._hook   = function(hook_name){
             return;
         }
     }
+    return;
 }
 
 
