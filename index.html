@@ -1,0 +1,51 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+    <title>linkage</title>
+    <script type="text/javascript" src="js/jquery.js" ></script>
+    <script type="text/javascript" src="js/linkage.js" ></script>
+    <script type="text/javascript">
+
+        $(function(){
+
+                var data = {
+                    1: {name: '蔬菜', cell: { 10: {name: '菠菜'}, 11: {name: '茄子'}, 11: {name: '黄瓜'} }
+                    },
+                    3: {name: '水果', 
+                        cell: { 
+                            20: {name: '苹果', cell: {201: {name: '红富士', price: 20}  } } ,
+                            21: {name: '桃', 
+                                    cell: { 
+                                        210: {name: '猕猴桃', price: 30}, 
+                                        211: {name: '油桃', price: 31}, 
+                                        212: {name: '蟠桃', priece: 32} }
+                            }
+                        }
+                    },
+                    9: {name: '粮食', 
+                        cell: { 
+                            30: {name: '水稻',    cell: { 301: {name: '大米', cell: {3001: {name: '五常香米', price: 50}} } }   } 
+                        }
+                    }
+                };
+                var opts = {
+                        data: data,
+                        select: '#area'
+                };
+
+
+                var area_select = new Linkage(opts);
+                console.log(area_select);
+
+        })
+
+    </script>
+</head>
+<body>
+
+    <select name="area" id="area" ></select>
+
+
+
+</body>
+</html>
