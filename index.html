@@ -29,32 +29,60 @@
                         }
                     }
                 };
+
+    var arr = {"38":{"id":"38","fid":"0","typename":"test","typeid":"6","order":"0","cell":{"41":{"id":"41","fid":"38","typename":"3","typeid":"6","order":"0","cell":{"49":{"id":"49","fid":"41","typename":"31","typeid":"6","order":"0"}}},"40":{"id":"40","fid":"38","typename":"2","typeid":"6","order":"0","cell":{"47":{"id":"47","fid":"40","typename":"21","typeid":"6","order":"0","cell":{"48":{"id":"48","fid":"47","typename":"22","typeid":"6","order":"0"}}}}},"39":{"id":"39","fid":"38","typename":"1","typeid":"6","order":"0","cell":{"44":{"id":"44","fid":"39","typename":"13","typeid":"6","order":"0"},"43":{"id":"43","fid":"39","typename":"12","typeid":"6","order":"0"},"42":{"id":"42","fid":"39","typename":"11","typeid":"6","order":"0","cell":{"45":{"id":"45","fid":"42","typename":"111","typeid":"6","order":"0","cell":{"46":{"id":"46","fid":"45","typename":"1111","typeid":"6","order":"0"}}}}}}}}}};
+
                 var opts = {
                         data: districtData,
-                        select: '#area'
+                        select: '#area',
+                        name:'area',
+                        names:['name1','name2','name3'],
+                        value:208
                 };
                 var food = {
-                        data: data,
-                        select: '#food'
+                        //data: arr,
+                        //select: ['#food','#food1','#food2','#food3'],
+                        select : '#food',
+                        name:'food',
+                        url:'http://localhost/wcs2/admin.php/admin/wxld/test',
+                        ajaxData:{typeid:6},
+                        //file:'/data.json',
+                        //names:['name1','name2','name3'],
+                        tip:{text:'请选择',value:'',display:true},
+                        optionText:'typename',
+                        names:['food1','food2','food3','food4','food5'],
+                        initial:[],
+                        optionText:'name'
                 };
 
                 area_select = new Linkage(opts);
                 food_select = new Linkage(food);
+                
+                //area_select.setValue(208);
 
+                area_select.on("change",function(key){
+                    console.info(this.getRouter('name'));
+                })
+                
                 food_select.on("change",function(key){
+
                     console.info(this.getData(key,'name'));
                     //console.info(this);
                     console.info(this.getRouter('name'));
                 });
-
-                console.log(area_select);
 
         })
 
     </script>
 </head>
 <body>
-    <select name="food" id="food" ></select><br/><br/><br/><br/>
-    <select name="area" id="area" ></select>
+    <select  id="food" ></select>
+    <!--select  id="food1" ></select>
+    <select  id="food2" ></select>
+    <select  id="food3" ></select-->
+
+
+    <br/><br/><br/><br/>
+    <select  id="area" ></select>
 </body>
 </html>
